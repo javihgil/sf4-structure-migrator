@@ -1,0 +1,26 @@
+{
+    "name": "javihgil/sf4-structure-migrator",
+    "description": "This command line tool allows to migrate your SF structure to the new Symfony4 structure",
+    "type": "project",
+    "license": "MIT",
+    "require": {
+        "symfony/console": "~3.3",
+        "symfony/process": "~3.3",
+        "symfony/filesystem": "~3.3",
+        "symfony/finder": "~3.3",
+        "symfony/yaml": "~3.3",
+        "php": "^7.1"
+    },
+    "bin": [
+        "sf4-structure"
+    ],
+    "config": {
+        "platform": {
+            "php": "7.1"
+        },
+        "preferred-install": {
+            "*": "dist"
+        },
+        "sort-packages": true
+    }
+}

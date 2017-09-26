@@ -1,0 +1,100 @@
+<?php
+
+namespace App;
+
+use Symfony\Bundle\FrameworkBundle\Kernel\MicroKernelTrait;
+use Symfony\Component\DependencyInjection\ContainerBuilder;
+use Symfony\Component\Finder\Finder;
+use Symfony\Component\Finder\SplFileInfo;
+use Symfony\Component\HttpKernel\Kernel as BaseKernel;
+use Symfony\Component\Config\Loader\LoaderInterface;
+use Symfony\Component\Routing\RouteCollectionBuilder;
+
+class Kernel extends BaseKernel
+{
+    use MicroKernelTrait;
+
+    // To be updated with SF4 release
+    private const CONFIG_EXTS_REGEX = '\.(php|xml|yaml|yml)$';
+
+    public function registerBundles(): iterable
+    {
+        $contents = require dirname(__DIR__).'/config/bundles.php';
+        foreach ($contents as $class => $envs) {
+            if (isset($envs['all']) || isset($envs[$this->getEnvironment()])) {
+                yield new $class();
+            }
+        }
+    }
+
+    public function getRootDir()
+    {
+        return dirname(__DIR__).'/app';
+    }
+
+    public function getCacheDir()
+    {
+        return dirname(__DIR__).'/var/cache/'.$this->getEnvironment();
+    }
+
+    public function getLogDir()
+    {
+        return dirname(__DIR__).'/var/logs';
+    }
+
+    /**
+     * To be updated with SF4 release
+     */
+    protected function configureContainer(ContainerBuilder $container, LoaderInterface $loader): void
+    {
+        $confDir = dirname(__DIR__).'/config';
+
+        // Load Package files
+        /** @var SplFileInfo $file */
+        foreach ((new Finder())->in($confDir.'/packages')->depth(0)->name('/'.self::CONFIG_EXTS_REGEX.'/')->files() as $file) {
+            $loader->load($file->getRealPath(), 'glob');
+        }
+
+        // Load Environment Package files
+        if (is_dir($confDir.'/packages/'.$this->getEnvironment())) {
+            /** @var SplFileInfo $file */
+            foreach ((new Finder())->in($confDir.'/packages/'.$this->getEnvironment())->name('/'.self::CONFIG_EXTS_REGEX.'/')->files() as $file) {
+                $loader->load($file->getRealPath(), 'glob');
+            }
+        }
+
+        // Load Container file
+        /** @var SplFileInfo $file */
+        foreach ((new Finder())->in($confDir)->depth(0)->name('/^container'.self::CONFIG_EXTS_REGEX.'/')->files() as $file) {
+            $loader->load($file->getRealPath(), 'glob');
+        }
+    }
+
+    /**
+     * To be updated with SF4 release
+     */
+    protected function configureRoutes(RouteCollectionBuilder $routes): void
+    {
+        $confDir = dirname(__DIR__).'/config';
+
+        // Load Package files
+        /** @var SplFileInfo $file */
+        foreach ((new Finder())->in($confDir.'/routing')->depth(0)->name('/'.self::CONFIG_EXTS_REGEX.'/')->files() as $file) {
+            $routes->import($file->getRealPath());
+        }
+
+        // Load Environment Package files
+        if (is_dir($confDir.'/routing/'.$this->getEnvironment())) {
+            /** @var SplFileInfo $file */
+            foreach ((new Finder())->in($confDir.'/routing/'.$this->getEnvironment())->name('/'.self::CONFIG_EXTS_REGEX.'/')->files() as $file) {
+                $routes->import($file->getRealPath());
+            }
+        }
+
+        // Load Container file
+        /** @var SplFileInfo $file */
+        foreach ((new Finder())->in($confDir)->depth(0)->name('/^routing'.self::CONFIG_EXTS_REGEX.'/')->files() as $file) {
+            $routes->import($file->getRealPath());
+        }
+    }
+}

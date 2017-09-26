@@ -1,0 +1,51 @@
+#!/usr/bin/env php
+<?php
+
+use Composer\Autoload\ClassLoader;
+use Jhg\Sf4StructureMigrator\Command\All;
+use Jhg\Sf4StructureMigrator\Command\AppBundle;
+use Jhg\Sf4StructureMigrator\Command\Cleanup;
+use Jhg\Sf4StructureMigrator\Command\GenerateBundlesFile;
+use Jhg\Sf4StructureMigrator\Command\GenerateCache;
+use Jhg\Sf4StructureMigrator\Command\GenerateConsoleController;
+use Jhg\Sf4StructureMigrator\Command\GenerateKernel;
+use Jhg\Sf4StructureMigrator\Command\GenerateMakefile;
+use Jhg\Sf4StructureMigrator\Command\GenerateUniqueController;
+use Jhg\Sf4StructureMigrator\Command\MoveConfiguration;
+use Jhg\Sf4StructureMigrator\Command\MoveRouting;
+use Jhg\Sf4StructureMigrator\Command\MoveTemplates;
+use Jhg\Sf4StructureMigrator\Command\MoveTranslations;
+use Jhg\Sf4StructureMigrator\Command\ParametersToEnvironmentVariables;
+use Jhg\Sf4StructureMigrator\Command\UpdateComposerJson;
+use Symfony\Component\Console\Application;
+
+// installed via composer?
+if (file_exists($a = getcwd().'/../../autoload.php')) {
+    $autoload = require_once $a;
+} else {
+    $autoload = require_once getcwd().'/vendor/autoload.php';
+}
+
+/** @var ClassLoader $autoload */
+$autoload->addPsr4('Jhg\\Sf4StructureMigrator\\', __DIR__.'/');
+
+$application = new Application();
+$application->addCommands([
+    new UpdateComposerJson('migrate:composer-json'),
+    new MoveConfiguration('migrate:config'),
+    new MoveRouting('migrate:routing'),
+    new ParametersToEnvironmentVariables('migrate:parameters'),
+    new GenerateBundlesFile('migrate:bundles'),
+    new GenerateKernel('migrate:kernel'),
+    new GenerateCache('migrate:kernel-cache'),
+    new GenerateUniqueController('migrate:controller'),
+    new GenerateConsoleController('migrate:console'),
+    new AppBundle('migrate:app-bundle'),
+    new GenerateMakefile('migrate:makefile'),
+    new Cleanup('migrate:cleanup'),
+    new MoveTemplates('migrate:templates'),
+    new MoveTranslations('migrate:translations'),
+    new All('migrate:all'),
+]);
+$application->setDefaultCommand('migrate:all');
+$application->run();
