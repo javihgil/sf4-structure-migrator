@@ -17,7 +17,7 @@ class All extends AbstractCommand
         $io->title('Migrate all');
 
         $commands = [
-            'migrate:php71',
+            'migrate:composer-json',
             'migrate:app-bundle',
             'migrate:parameters',
             'migrate:routing',
