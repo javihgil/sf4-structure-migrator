@@ -20,10 +20,10 @@ use Jhg\Sf4StructureMigrator\Command\UpdateComposerJson;
 use Symfony\Component\Console\Application;
 
 // installed via composer?
-if (file_exists($a = getcwd().'/../../autoload.php')) {
+if (file_exists($a = __DIR__.'/../../autoload.php')) {
     $autoload = require_once $a;
 } else {
-    $autoload = require_once getcwd().'/vendor/autoload.php';
+    $autoload = require_once __DIR__.'/vendor/autoload.php';
 }
 
 /** @var ClassLoader $autoload */
